@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linear Search Visualization</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        @import url(https://fonts.googleapis.com/css?family=Cinzel+Decorative:400,900);
+
+        body {
+            background: linear-gradient(135deg, rgb(9, 9, 27) 0%, rgb(39, 8, 39) 50%, rgb(92, 84, 84) 100%);
+            font-family: 'Arial', sans-serif;
+            position: relative;
+        }
+        h1 {
+            text-shadow: -1px;
+            font-family: 'Arial', sans-serif;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+        }
+        .input-container {
+            position: absolute;
+            top: 80px;
+            left: 20px;
+        }
+        .array-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            margin-top: 250px;
+            margin-bottom: 2rem;
+            max-width: 80%;
+            padding: 0 20px;
+        }
+        .array-item {
+            transition: background-color 0.3s, transform 0.3s, opacity 0.3s;
+            margin: 0.5rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            border: 2px solid #2563eb;
+            background-color: white;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .highlight {
+            background-color: #2563eb;
+            color: #fff;
+            transform: scale(1.2);
+            opacity: 1;
+        }
+        .match-highlight {
+            background-color: #28a745; /* Green for match */
+            color: white;
+        }
+        .no-match-highlight {
+            background-color: #dc3545; /* Red for no match */
+            color: white;
+        }
+        .button {
+            font-family: 'Arial', sans-serif;
+            border: 1px solid gray;
+            color: white;
+            padding: 2.5px 4px;
+            text-align: center;
+            display: inline-block;
+            font-size: 14px;
+            margin: 4px 2px;
+            transition-duration: 0.4s;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-bottom: 30px;
+        }
+        .button:hover {
+            background-color: #2a1879;
+            transition-duration: .4s;
+        }
+        input {
+            font-family: 'Arial', sans-serif !important;
+            font-size: 16px !important;
+        }
+        .code-container {
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 10px;
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            width: auto;
+            max-width: 550px;
+            z-index: 5;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-start justify-start min-h-screen relative">
+
+    <h1 class="text-3xl font-bold mb-8">Linear Search Visualization</h1>
+    <div class="input-container">
+        <input type="text" id="arrayInput" placeholder="Enter numbers separated by commas (e.g. 4,3,2,1)" class="p-2 border border-gray-300 rounded mb-4 w-96" />
+        <input type="number" id="searchInput" placeholder="Search Number" class="p-2 border border-gray-300 rounded mb-4 w-40" />
+        <div class="flex space-x-4">
+            <button id="linearSearchButton" class="button bg-green-500 text-white py-2 px-4 rounded">Linear Search</button>
+        </div>
+    </div>
+
+    <div class="array-container flex justify-center mb-6" id="arrayContainer"></div>
+    <div class="iteration-info mt-4 text-lg text-white" id="iterationInfo"></div>
+
+    <div class="code-container">
+        <pre class="code-snippet p-4 text-black rounded-lg overflow-x-auto bg-gray-100">
+            <code id="codeSnippet" class="language-javascript">
+function linearSearch(arr, target) {
+    for (let i = 0; i < arr.length; i++) {
+        if (arr[i] === target) return i; 
+    }
+    return -1;
+}
+            </code>
+        </pre>
+    </div>
+
+    <script>
+        // Original linear search function code
+        const originalCode = `
+function linearSearch(arr, target) {
+    for (let i = 0; i < arr.length; i++) {
+        if (arr[i] === target) return i; 
+    }
+    return -1;
+}`;
+
+        // Linear Search Algorithm
+        function linearSearch(arr, target) {
+            const iterations = [];
+            for (let i = 0; i < arr.length; i++) {
+                iterations.push({ index: i, value: arr[i] });
+                if (arr[i] === target) {
+                    return { index: i, iterations }; // Return the index if found
+                }
+            }
+            return { index: -1, iterations }; // Return -1 if not found
+        }
+
+        // Function to visualize linear search
+        function visualizeLinearSearch() {
+            const arrayInput = document.getElementById('arrayInput').value;
+            const searchInput = parseInt(document.getElementById('searchInput').value);
+            const arrayContainer = document.getElementById('arrayContainer');
+            const iterationInfo = document.getElementById('iterationInfo');
+
+            const arr = arrayInput.split(',').map(Number);
+            arrayContainer.innerHTML = '';
+
+            const searchResult = linearSearch(arr, searchInput);
+            let currentIteration = 0;
+
+            // Create array elements and control line break after 10 elements
+            arr.forEach((num, index) => {
+                const item = document.createElement('div');
+                item.className = 'array-item';
+                item.innerHTML = num;
+                arrayContainer.appendChild(item);
+
+                // Break line after 10 elements
+                if ((index + 1) % 10 === 0) {
+                    const lineBreak = document.createElement('div');
+                    lineBreak.style.flexBasis = '100%'; // Force break to the next line
+                    arrayContainer.appendChild(lineBreak);
+                }
+            });
+
+            const displayIteration = async () => {
+                // Highlight current and check if it matches
+                if (currentIteration < arr.length) {
+                    const index = currentIteration;
+                    const value = arr[index];
+
+                    // Modify the code snippet dynamically for the current iteration
+                    let modifiedCode = originalCode
+                        .replace(/target/g, searchInput)
+                        .replace('arr[i]', `arr[${index}] (${value})`);
+
+                    // Highlight the modified code BEFORE the element is highlighted
+                    document.getElementById('codeSnippet').innerHTML = modifiedCode
+                        .replace(/</g, "&lt;")
+                        .replace(/>/g, "&gt;")
+                        .replace(/`/g, "&grave;");
+
+                    // Highlight the current array element
+                    const elements = document.querySelectorAll('.array-item');
+                    elements.forEach(element => {
+                        element.classList.remove('highlight', 'match-highlight', 'no-match-highlight');
+                    });
+
+                    // Update the iteration info immediately
+                    iterationInfo.innerHTML = `Checking index ${index}: ${value}`;
+                    elements[index].classList.add('highlight');
+
+                    await new Promise(resolve => setTimeout(resolve, 500)); // Delay of 500ms
+
+                    if (value === searchInput) {
+                        elements[index].classList.add('match-highlight');
+                        iterationInfo.innerHTML += `<br>Match found at index ${index}`;
+                        return; // Stop search
+                    } else {
+                        elements[index].classList.add('no-match-highlight');
+                    }
+
+                    currentIteration++;
+                    setTimeout(displayIteration, 1000);
+                } else {
+                    iterationInfo.innerHTML += `<br>Result: Element not found`;
+                }
+            };
+
+            displayIteration();
+        }
+
+        // Event listeners
+        document.getElementById('linearSearchButton').addEventListener('click', visualizeLinearSearch);
+    </script>
+</body>
+</html>
